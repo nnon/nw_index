@@ -20,7 +20,7 @@ class NW:
         self.indexes = {}
         for index, row in df.iterrows():
             self.indexes.update({row['quarter_year']: row[1:].to_dict()})
-        self.lastQuarter = df.tail(1)['quarter_year'].item()
+        self.lastQuarter = df.tail(1)['quarter_year'].iloc[0]
 
 
 def main():
