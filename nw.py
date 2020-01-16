@@ -4,13 +4,24 @@ import io
 import math
 import datetime
 
-class nw_ind:
+
+excelRowNames = ['quarter_year', 'north_val', 'north', 'yorkshside_val',
+                 'yorkshside', 'northwest_val', 'northwest', 'eastmids_val',
+                 'eastmids', 'westmids_val', 'westmids', 'eastanglia_val',
+                 'eastanglia', 'outerseast_val', 'outerseast', 'outermet_val',
+                 'outermet', 'london_val', 'london', 'southwest_val',
+                 'southwest', 'wales_val', 'wales', 'scotland_val', 'scotland',
+                 'nireland_val', 'nireland', 'uk_val', 'uk']
+
+
+class NW:
 
     def __init__(self, df):
         self.indexes = {}
         for index, row in df.iterrows():
             self.indexes.update({row['quarter_year']: row[1:].to_dict()})
         self.lastQuarter = df.tail(1)['quarter_year'].item()
+
 
 def main():
 
@@ -22,49 +33,10 @@ def main():
 
     with io.BytesIO(resp.content) as fh:
         df = pd.io.excel.read_excel(fh, skiprows=3, header=None,
-                                    names=['quarter_year',
-                                            'north_val',
-                                            'north',
-                                            'yorkshside_val',
-                                            'yorkshside',
-                                            'northwest_val',
-                                            'northwest',
-                                            'eastmids_val',
-                                            'eastmids',
-                                            'westmids_val',
-                                            'westmids',
-                                            'eastanglia_val',
-                                            'eastanglia',
-                                            'outerseast_val',
-                                            'outerseast',
-                                            'outermet_val',
-                                            'outermet',
-                                            'london_val',
-                                            'london',
-                                            'southwest_val',
-                                            'southwest',
-                                            'wales_val',
-                                            'wales',
-                                            'scotland_val',
-                                            'scotland',
-                                            'nireland_val',
-                                            'nireland',
-                                            'uk_val',
-                                            'uk']).drop(columns=['north_val',
-                                                                 'yorkshside_val',
-                                                                 'northwest_val',
-                                                                 'eastmids_val',
-                                                                 'westmids_val',
-                                                                 'eastanglia_val',
-                                                                 'outerseast_val',
-                                                                 'outermet_val',
-                                                                 'london_val',
-                                                                 'southwest_val',
-                                                                 'wales_val',
-                                                                 'scotland_val',
-                                                                 'nireland_val',
-                                                                 'uk_val'])
-    nw = nw_ind(df)
+                                    names=excelRowNames).drop(columns=
+                                    [name for name in excelRowNames
+                                     if '_val' in name])
+    nw = NW(df)
     iv = index_val(datetime.date(2011, 11, 30), 250000, 'westmids', nw)
     print(iv)
 
@@ -74,7 +46,7 @@ def quarter_year(dateIn: datetime) -> str:
 
 
 def index_val(dateOfLastVal: datetime, lastVal: float, region: str,
-              nw: nw_ind) -> float:
+              nw: NW) -> float:
     valQuarterYear = quarter_year(dateOfLastVal)
     origInd = nw.indexes[valQuarterYear][region]
     latestInd = nw.indexes[nw.lastQuarter][region]
